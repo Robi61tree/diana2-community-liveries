@@ -1,4 +1,6 @@
 
 {
-  "blocked": []
+  "blocked": [
+    {"aircraft": "SZD-56-2", "file": "badfile.png"}
+  ]
 }
