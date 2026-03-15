@@ -1,1 +1,46 @@
 
+name: Cleanup old liveries
+on:
+  schedule:
+    - cron: '0 3 * * 1'  # Every Monday at 3am
+  workflow_dispatch:       # Allow manual run
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove liveries older than 14 days
+        run: |
+          python3 - <<'EOF'
+          import json, os, subprocess
+          from datetime import datetime, timedelta
+          
+          with open('manifest.json', 'r') as f:
+              data = json.load(f)
+          
+          cutoff = datetime.utcnow() - timedelta(days=14)
+          kept = []
+          for entry in data.get('liveries', []):
+              uploaded = datetime.fromisoformat(entry.get('uploaded', '2000-01-01'))
+              if uploaded >= cutoff:
+                  kept.append(entry)
+              else:
+                  path = f"Aircraft/{entry['aircraft']}/{entry['file']}"
+                  if os.path.exists(path):
+                      os.remove(path)
+                      print(f"Deleted {path}")
+          
+          data['liveries'] = kept
+          with open('manifest.json', 'w') as f:
+              json.dump(data, f, indent=2)
+          EOF
+      - name: Commit changes
+        run: |
+          git config user.name "cleanup-bot"
+          git config user.email "bot@noreply"
+          git add -A
+          git diff --cached --quiet || git commit -m "Auto-cleanup: removed liveries older than 14 days"
+          git push
