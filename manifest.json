@@ -213,6 +213,11 @@
       "from": "Aermacchi MB-339",
       "to": "Aermacchi MB-339999",
       "at": "2026-04-01T14:20:47.224Z"
+    },
+    {
+      "from": "Aermacchi MB-339999",
+      "to": "Aermacchi MB-339",
+      "at": "2026-04-01T14:26:34.882Z"
     }
   ]
 }
